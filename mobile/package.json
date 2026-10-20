@@ -1,0 +1,18 @@
+{
+  "name": "egat-poc-mobile",
+  "private": true,
+  "main": "expo/AppEntry.js",
+  "scripts": { "start": "expo start --dev-client", "android": "expo run:android", "ios": "expo run:ios", "typecheck": "tsc --noEmit", "export:check": "expo export --platform android --output-dir .expo/export-check" },
+  "dependencies": {
+    "expo": "~51.0.28",
+    "expo-auth-session": "~5.5.2",
+    "expo-crypto": "~13.0.2",
+    "expo-dev-client": "~4.0.29",
+    "expo-local-authentication": "~14.0.1",
+    "expo-secure-store": "~13.0.2",
+    "expo-web-browser": "~13.0.3",
+    "react": "18.2.0",
+    "react-native": "0.74.5"
+  },
+  "devDependencies": { "@types/react": "~18.2.79", "typescript": "~5.8.2" }
+}

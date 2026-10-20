@@ -1,0 +1,23 @@
+{
+  "kind": "LOCAL_FIXTURE_BROWSER_TEST_NOT_REAL_OKTA_LOGIN",
+  "cases": [
+    "Unauthenticated home hides account menu",
+    "oidc: pointer open, Space close, profile account/custom claims render",
+    "oidc: 390px viewport no horizontal overflow",
+    "saml: pointer open, Space close, profile account/custom claims render",
+    "saml: 390px viewport no horizontal overflow",
+    "MFA UI: mocked Primary selection changes verification target; no real preference written",
+    "MFA UI: mocked Number Matching from response (no actual push sent)",
+    "MFA UI: mocked transaction polling SUCCESS; mobile no overflow",
+    "Primary demo: pairing requires explicit confirmation; no automatic MFA",
+    "Primary demo: mocked push targets saved Primary, number challenge, polling SUCCESS and REST trace",
+    "Primary demo: mocked TOTP SUCCESS; passcode cleared and redacted from REST trace",
+    "Primary demo: JSON export retains both mocked results without OTP/API token; source opens a new tab",
+    "Primary demo: invalid mocked TOTP replaces previous success with ERROR",
+    "Primary demo: mocked push rejection never displays success",
+    "Primary demo: stop polling does not become SUCCESS or pretend to cancel Okta",
+    "Primary demo: 390px viewport no horizontal overflow",
+    "Primary demo: real allowlisted source renders and stays within mobile viewport"
+  ],
+  "capturedAt": "2026-10-20T05:03:08.550Z"
+}

@@ -1,0 +1,14 @@
+.env.local
+.env.*.local
+node_modules
+web/node_modules
+web/.next
+mobile/node_modules
+.expo
+mobile/android/.gradle
+mobile/android/.kotlin
+mobile/android/build
+mobile/android/app/build
+mobile/android/app/.cxx
+mobile/android/local.properties
+mobile/android/app/debug.keystore

@@ -1,0 +1,10 @@
+{
+  "name": "egat-poc-sso",
+  "private": true,
+  "scripts": {
+    "verify:config": "node scripts/verify-config.mjs",
+    "verify:api": "node scripts/verify-api.mjs",
+    "verify:primary": "node scripts/verify-primary-handler.mjs",
+    "verify:browser": "node scripts/browser-check.mjs --hosted"
+  }
+}

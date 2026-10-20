@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>สรุป Attach_PUB_1TOR_POC.pdf และการประเมิน OneLogin</title>
+  <style>
+    :root{--ink:#17352a;--muted:#5d766a;--line:#d9eee0;--green:#237a50;--green-dark:#145c3b;--mint:#eaf8ee;--lime:#c8efcf;--amber:#9a6700;--red:#b42318;--bg:#f3fbf5}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 8% 0%,#dff7e5 0,#f3fbf5 28%,#f7fcf8 70%);color:var(--ink);font:16px/1.75 system-ui,-apple-system,"Noto Sans Thai",sans-serif}
+    main{max-width:1040px;margin:32px auto;padding:0 20px} article{background:#ffffffea;border:1px solid var(--line);border-radius:24px;padding:38px;box-shadow:0 18px 50px #397b4b18;backdrop-filter:blur(8px)}
+    .hero{display:flex;align-items:center;gap:18px;padding:4px 0 22px}.hero h1{margin:2px 0 5px;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em;line-height:1.2}.eyebrow{display:block;color:var(--green);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.sub,.note{color:var(--muted)}
+    .clover{position:relative;display:block;flex:0 0 58px;width:58px;height:58px;transform:rotate(45deg)}.clover i{position:absolute;width:28px;height:28px;background:linear-gradient(135deg,#bcebc5,#79cf98);border:2px solid #fff;border-radius:100% 0 100% 0;box-shadow:0 5px 12px #3d9d5b26}.clover i:nth-child(1){top:0;left:0}.clover i:nth-child(2){top:0;right:0;transform:rotate(90deg)}.clover i:nth-child(3){bottom:0;right:0;transform:rotate(180deg)}.clover i:nth-child(4){bottom:0;left:0;transform:rotate(270deg)}
+    h2{margin-top:36px;color:var(--green-dark);border-bottom:2px solid var(--line);padding-bottom:9px} h3{color:var(--green-dark);margin:22px 0 5px}
+    .answer{border:1px solid #b9e4c5;border-left:6px solid var(--green);background:linear-gradient(135deg,#f0fcf3,#e5f8ea);padding:18px 20px;border-radius:14px;margin:22px 0}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;margin:14px 0 24px;border:1px solid var(--line);border-radius:12px} th,td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 13px;vertical-align:top;text-align:left} th{background:#e4f6e8;color:var(--green-dark);font-weight:750} tr:last-child td{border-bottom:0} th:last-child,td:last-child{border-right:0} tbody tr:nth-child(even){background:#fbfefb} tbody tr:hover{background:#f0fbf2}
+    ul,ol{padding-left:26px} li::marker{color:var(--green)} .yes{color:var(--green);font-weight:700}.partial{color:var(--amber);font-weight:700}.risk{color:var(--red);font-weight:700}
+    code{background:#eaf7ed;color:var(--green-dark);padding:2px 6px;border-radius:6px;border:1px solid #d4edd9} a{color:var(--green);font-weight:650;text-decoration-thickness:1px;text-underline-offset:3px} a:hover{color:var(--green-dark)} footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+    @media (max-width:650px){main{margin:12px auto;padding:0 10px}article{padding:22px 16px;border-radius:18px}.hero{align-items:flex-start}.clover{flex-basis:46px;width:46px;height:46px}.clover i{width:22px;height:22px}table{font-size:14px;display:block;overflow-x:auto;white-space:normal}}
+  </style>
+</head>
+<body><main><article>
+  <div class="hero"><span class="clover" aria-label="EGAT-POC"><i></i><i></i><i></i><i></i></span><div><span class="eyebrow">EGAT-POC</span><h1>สรุป Attach_PUB_1TOR_POC.pdf</h1><div class="sub">MFA / SSO implementation brief</div></div></div>
+  <div class="sub">เอกสาร: ผนวก 6 การทดสอบการใช้งานจริง | 5 หน้า | ประเมินแบบ “ผ่าน/ไม่ผ่าน”</div>
+
+  <div class="answer"><strong>ขอบเขตงานรอบนี้: ทำเฉพาะ 3 ส่วน</strong><br>
+  1) MFA กับ In-house Web Application ผ่าน OIDC และ API<br>
+  2) MFA/SSO กับ In-house Web Application ผ่าน SAML<br>
+  3) MFA กับ In-house Mobile Application ผ่าน OIDC<br><br>
+  OneLogin เหมาะกับขอบเขตนี้ โดยใช้เป็น Identity Provider และ MFA Provider; รายการ AD, VPN, Adaptive Authentication และ Admin/RBAC ในเอกสารเป็นข้อมูลอ้างอิงของ TOR แต่ <strong>ไม่รวมในงานรอบนี้</strong></div>
+
+  <h2>สรุปย่อสำหรับการดำเนินงาน</h2>
+  <p>งานนี้เป็นการทำ Proof of Concept เพื่อพิสูจน์ว่า <strong>OneLogin สามารถทำ MFA และ SSO ให้กับ Web Application และ Mobile Application ได้</strong> ผ่านมาตรฐาน OIDC, SAML และ API</p>
+  <table><thead><tr><th>หัวข้อ</th><th>สรุป</th></tr></thead><tbody>
+    <tr><td>ขอบเขต</td><td>Web OIDC + API, Web SAML และ Mobile OIDC</td></tr>
+    <tr><td>ระบบหลัก</td><td>OneLogin เป็น Identity Provider และ MFA Provider</td></tr>
+    <tr><td>Web Stack</td><td>Next.js + OIDC + SAML 2.0</td></tr>
+    <tr><td>Mobile Stack</td><td>React Native + OIDC Authorization Code + PKCE</td></tr>
+    <tr><td>MFA</td><td>Password, Push, TOTP, PIN/Biometrics และ Number Matching ตามความสามารถของ Tenant</td></tr>
+    <tr><td>API</td><td>OneLogin REST API สำหรับ Enrollment, Push และ Verify MFA</td></tr>
+    <tr><td>ผลลัพธ์</td><td>Source Code, Test Cases, ผลทดสอบผ่าน/ไม่ผ่าน และข้อจำกัดของ OneLogin</td></tr>
+    <tr><td>ไม่รวม</td><td>Active Directory, VPN Gateway, Adaptive Authentication, TOR/Geo Policy และ Admin/RBAC</td></tr>
+  </tbody></table>
+  <p><strong>ข้อสรุป:</strong> OneLogin มีความเหมาะสมสำหรับ POC นี้ แต่ต้องยืนยัน Number Matching, MFA Enrollment, Custom Claims/Attributes และ MFA API กับ OneLogin Tenant ที่จะใช้งานจริง</p>
+
+  <h2>ขอบเขตที่เลือกทำ</h2>
+  <table><thead><tr><th>ขอบเขต</th><th>สิ่งที่ต้องทำ</th><th>ผลลัพธ์ที่ต้องสาธิต</th></tr></thead><tbody>
+    <tr><td>Web App: OIDC + API</td><td>เชื่อม Web Application ด้วย OIDC, ส่ง Custom Attribute, ทำ MFA และเรียก Push/TOTP ผ่าน REST API</td><td>Login สำเร็จ, MFA ครั้งแรก, Push/OTP ทำงาน และ Authorization Flow แบบ Client Secret</td></tr>
+    <tr><td>Web App: SAML</td><td>เชื่อม Web Application ด้วย SAML และส่ง Custom Attribute</td><td>SSO สำเร็จ, Password + Push MFA + Number Matching และปรับแต่ง Logo/Background/Link ได้</td></tr>
+    <tr><td>Mobile App: OIDC</td><td>เชื่อม Mobile Application ด้วย OIDC สำหรับ React Native และใช้ PKCE</td><td>Passwordless ด้วย PIN/Biometrics + Push MFA + Number Matching</td></tr>
+  </tbody></table>
+
+  <h2>1. ข้อกำหนดสำคัญในเอกสาร</h2>
+  <table><thead><tr><th>หมวด</th><th>สิ่งที่ต้องสาธิต</th></tr></thead><tbody>
+    <tr><td>AD Synchronization</td><td>Sync ผู้ใช้ตาม OU ที่กำหนด รวม OU/ข้อมูลภาษาไทย, เปิด MFA อัตโนมัติหรือเลือกเฉพาะบางคน, map attribute และกำหนด custom parameter</td></tr>
+    <tr><td>VPN Gateway</td><td>เชื่อมต่อด้วย SAML และส่ง Attribute เพื่อกำหนด Policy; Password + Push MFA + Number Matching; ลงทะเบียน Mobile authenticator ครั้งแรก</td></tr>
+    <tr><td>Web Application</td><td>รองรับ OIDC และ SAML, ส่ง Custom Attribute, MFA แบบ Push/Number Matching, REST API สำหรับ Push และ TOTP, Authorization Flow แบบ Client Secret</td></tr>
+    <tr><td>Mobile Application</td><td>OIDC สำหรับ React Native, Passwordless ด้วย PIN/Biometrics + Push/Number Matching, PKCE</td></tr>
+    <tr><td>Adaptive Authentication</td><td>ใช้ Geographic Location, block TOR Network และ block พฤติกรรมเสี่ยง เช่น ย้ายประเทศในเวลาติดกัน</td></tr>
+    <tr><td>Admin / RBAC</td><td>แยกสิทธิ์ Super User, Manage Users, Manage Application และ Helpdesk</td></tr>
+  </tbody></table>
+
+  <h2>2. ประเมินความสอดคล้องกับ OneLogin</h2>
+  <table><thead><tr><th>ข้อกำหนด</th><th>ผลประเมิน</th><th>หมายเหตุ</th></tr></thead><tbody>
+    <tr><td>AD, OU, Sync แบบ real-time</td><td class="yes">รองรับ</td><td>OneLogin AD Connector เลือก OU ได้ และ sync ผู้ใช้/การเปลี่ยนแปลงจาก AD ได้</td></tr>
+    <tr><td>SAML SSO + Custom Attribute</td><td class="yes">รองรับ</td><td>ใช้ OneLogin เป็น IdP และกำหนด Attribute Statement/Mapping ให้ VPN หรือ Web App</td></tr>
+    <tr><td>OIDC Web + Mobile</td><td class="yes">รองรับ</td><td>รองรับ OIDC; สำหรับ Mobile ควรใช้ Authorization Code + PKCE</td></tr>
+    <tr><td>Push MFA และ REST API</td><td class="yes">รองรับ</td><td>OneLogin Protect และ MFA API มีการ enroll, trigger push และ verify</td></tr>
+    <tr><td>Adaptive / Geo / TOR / risk</td><td class="yes">มีความสามารถรองรับ</td><td>SmartFactor ระบุ network, geography, device และ time anomalies รวมถึง TOR เป็นสัญญาณความเสี่ยง</td></tr>
+    <tr><td>Number Matching</td><td class="partial">ต้องยืนยันกับรุ่น/แผนบริการ</td><td>เอกสารทางการที่ตรวจพบยืนยัน Push แบบ Accept/Deny แต่ยังไม่พบหลักฐานชัดเจนสำหรับ Number Matching แบบพิมพ์/เลือกเลขตาม TOR</td></tr>
+    <tr><td>2 อุปกรณ์ + Primary</td><td class="partial">ต้องทดสอบ PoC</td><td>มี API/การจัดการ MFA device แต่เงื่อนไข Primary และพฤติกรรม Push เหมือนกันต้องตรวจใน tenant จริง</td></tr>
+    <tr><td>หน้าล็อกอินปรับ Logo/Background/Link</td><td class="partial">มีแนวโน้มรองรับ</td><td>ต้องตรวจความสามารถปรับแต่งของแพ็กเกจ/tenant และสาธิตตามเกณฑ์</td></tr>
+    <tr><td>RBAC สำหรับผู้ดูแล</td><td class="yes">รองรับโดยหลัก</td><td>จัด role/สิทธิ์แยกตามงานได้ แต่ต้อง map ชื่อ role ให้ตรงกับ TOR</td></tr>
+  </tbody></table>
+
+  <h2>3. ข้อสรุปสำหรับขอบเขตนี้</h2>
+  <p><strong>แนะนำให้ใช้ OneLogin ได้</strong> โดยวาง OneLogin เป็น Cloud IdP/MFA แล้วเชื่อม Web Application ด้วย OIDC และ SAML ส่วน Mobile Application ใช้ OIDC + PKCE</p>
+  <p><span class="risk">จุดที่ต้องยืนยันก่อนสรุปผล POC:</span> Number Matching, การบังคับ MFA ครั้งแรก, การส่ง Custom Attribute, REST API สำหรับ Push/TOTP และความสามารถปรับแต่งหน้า SSO Login</p>
+  <h3>แผนทดสอบที่ควรทำ</h3>
+  <ol><li>สร้าง Next.js Web Application สำหรับทดสอบ OIDC และ SAML</li><li>สร้าง React Native Mobile Application สำหรับทดสอบ OIDC + PKCE</li><li>ตั้งค่า OneLogin Application, Redirect URI, Client ID/Secret และ Claims/Attributes</li><li>ทดสอบ Password + Push MFA, Number Matching, MFA Enrollment และ TOTP/Push API</li><li>ทดสอบ Logo/Background/Hyperlink ของ SSO Login Page และจัดทำหลักฐานผ่าน/ไม่ผ่าน</li></ol>
+
+  <h2>4. สิ่งที่ต้องทำและ Stack / Tools เฉพาะงานรอบนี้</h2>
+  <h3>งานที่ต้องดำเนินการ</h3>
+  <ol>
+    <li><strong>Web OIDC/API:</strong> เชื่อม OIDC, ส่ง Custom Attribute, ทำ MFA และเรียก Push/TOTP ผ่าน REST API</li>
+    <li><strong>Web SAML:</strong> เชื่อม SAML SSO, ส่ง Custom Attribute, ทดสอบ Push MFA + Number Matching และปรับแต่งหน้า Login</li>
+    <li><strong>Mobile OIDC:</strong> พัฒนา React Native, ใช้ OIDC + PKCE และทดสอบ PIN/Biometrics + Push MFA</li>
+  </ol>
+  <h3>Stack / Tools ที่ต้องใช้</h3>
+  <table><thead><tr><th>ส่วนงาน</th><th>Stack / Tool</th></tr></thead><tbody>
+    <tr><td>Identity Provider / MFA</td><td>OneLogin ตาม TOR; POC ที่รันจริงใช้ Okta Trial, OIDC, SAML และ Okta Management API</td></tr>
+    <tr><td>Web Framework</td><td>Next.js 14.2, React 18, Node.js 20; Docker dev server พร้อม hot reload ไม่ build production image</td></tr>
+    <tr><td>Web Authentication</td><td>OpenID Connect Authorization Code + PKCE, <code>jose</code> สำหรับ JWKS/ID Token และ HTTP-only session cookie</td></tr>
+    <tr><td>SAML</td><td>SAML 2.0 SP-initiated SSO, metadata และ ACS ด้วย <code>samlify</code> พร้อม XML schema validation ด้วย <code>@authenio/samlify-node-xmllint</code></td></tr>
+    <tr><td>Mobile POC</td><td>Expo 51, React Native 0.74, AuthSession/PKCE, SecureStore, LocalAuthentication, Crypto, WebBrowser และ Dev Client; ต้องใช้ native development build</td></tr>
+    <tr><td>MFA / API</td><td>Okta Management REST API สำหรับ factor catalog, user factors, enroll, activate และ verify TOTP/Push</td></tr>
+    <tr><td>Database</td><td>PostgreSQL 16 Alpine, <code>pg</code> / <code>@types/pg</code>, parameterized queries และ persistent volume; เก็บ Primary Push/TOTP preference และ callback evidence ไม่เก็บ token/assertion เต็ม</td></tr>
+    <tr><td>Container</td><td>Docker, Docker Compose, Web Dockerfile, PostgreSQL healthcheck และ dependency ordering</td></tr>
+    <tr><td>Configuration</td><td><code>.env.local</code>, <code>.env.example</code>, runtime <code>env_file</code> และ server-side secrets</td></tr>
+    <tr><td>Testing / Validation</td><td>TypeScript, HTTP smoke, Chrome DevTools Protocol + ws, screenshots, Metro Android Hermes export; native/อุปกรณ์จริงยังแยกเป็นงานรอยืนยัน</td></tr>
+  </tbody></table>
+  <h3>รายการที่เพิ่ม/ติดตั้งในโปรเจกต์</h3>
+  <ul>
+    <li>Web dependencies: <code>next</code>, <code>react</code>, <code>react-dom</code>, <code>jose</code>, <code>samlify</code>, <code>@authenio/samlify-node-xmllint</code> และ <code>ws</code></li>
+    <li>Mobile เพิ่ม <code>expo-local-authentication</code>, <code>expo-crypto</code>, <code>expo-web-browser</code>, <code>expo-dev-client</code> และ TypeScript tooling</li>
+    <li>Docker services: Web application และ PostgreSQL 16 พร้อม volume <code>postgres_data</code></li>
+    <li>เพิ่ม PostgreSQL client <code>pg</code> / <code>@types/pg</code> ไม่มี ORM; schema สำหรับ Primary preference และหลักฐาน callback</li>
+  </ul>
+  <h3>สิ่งที่ต้องเตรียมก่อน POC</h3>
+  <ul><li>OneLogin Tenant และ License ที่เปิดใช้ MFA, OIDC, SAML และ API</li><li>OneLogin Protect หรือ Authenticator สำหรับทดสอบ Push/TOTP</li><li>Web Test Application ที่พัฒนาด้วย Next.js</li><li>Mobile Test Application ที่พัฒนาด้วย React Native</li><li>Android/iOS Device และ Source Code</li><li>Test Cases และหลักฐานผลทดสอบผ่าน/ไม่ผ่าน</li></ul>
+
+  <h2>Implementation ที่จัดทำแล้ว</h2>
+  <p><strong>หมายเหตุ:</strong> เนื้อหาส่วนต้นเป็นการสรุปความเหมาะสมของ OneLogin ตาม PDF ต้นฉบับ ส่วน POC ที่ลงมือทำจริงในโฟลเดอร์นี้ configure กับ Okta trial tenant ตาม credentials ที่ได้รับ โดยใช้มาตรฐาน OIDC, SAML และ Okta Management API เดียวกับขอบเขตงาน</p>
+  <table><thead><tr><th>ส่วน</th><th>สิ่งที่มีในโปรเจกต์</th></tr></thead><tbody>
+    <tr><td>Web OIDC</td><td>Next.js Authorization Code + PKCE, state/nonce, JWKS ID-token verification, session และ logout; ขอ scope openid / profile / email และแสดง Custom Claims employee_code (รหัสพนักงาน), department (แผนก) จาก ID token ที่ตรวจสอบแล้วใน Account บน dashboard โดยไม่ใส่ข้อมูลตัวอย่างแทนค่าที่หาย</td></tr>
+    <tr><td>Okta Authorization Policy</td><td>เพิ่ม Access Policy เฉพาะแอป Web OIDC บน Authorization Server default เพื่อแก้ no_matching_policy; อนุญาตเฉพาะ authorization_code และ scopes openid / profile / email โดยคง Password + Okta Verify Push (2FA) ไว้ อ่านค่ากลับผ่าน API ยืนยันแล้ว; login ครบ flow ต้องทดสอบผ่านเบราว์เซอร์ ไม่เพิ่ม Stack / Tools</td></tr>
+    <tr><td>Web SAML</td><td>SP-initiated login, SAML metadata, ACS callback และอ่าน Attribute หลังตรวจผลยืนยันตัวตน; แสดงชื่อ อีเมล employee_code และ department ใน Account เช่นเดียวกับ OIDC รองรับ Attribute แบบ string หรือ array ค่าเดียว และ session เดิมที่เก็บ Attributes อยู่แล้ว โดย SAML ไม่ต้องขอ scope แบบ OIDC</td></tr>
+    <tr><td>Account menu</td><td>เมนู Account มุมขวาบนทั้งหน้าแรกและ dashboard หลังเข้าสู่ระบบ แสดงชื่อ บัญชีผู้ใช้ อีเมล รหัสพนักงาน แผนก และ protocol พร้อมลิงก์ข้อมูลบัญชีและ Logout; แยกบัญชีผู้ใช้ OIDC preferred_username / SAML NameID ออกจากอีเมล ใช้ HTML details/summary ไม่เพิ่ม Stack / Tools</td></tr>
+    <tr><td>Logout กลับหน้าแรก</td><td>OIDC ใช้ id_token_hint และ post_logout_redirect_uri; session SAML ใช้ Okta Org Sign-Out พร้อม fromURI กลับ http://localhost:3000 โดยเพิ่ม Trusted Origin สถานะ ACTIVE แบบ REDIRECT เท่านั้นแล้ว การตั้งค่านี้ไม่ใช่ SAML Single Logout protocol และไม่เพิ่ม Stack / Tools</td></tr>
+    <tr><td>หน้าแจ้งข้อผิดพลาด</td><td>หน้า error ภาษาไทยโทนเขียวสำหรับ OIDC / SAML พร้อมคำแนะนำ ปุ่มลองใหม่ กลับหน้าแรก และรหัสอ้างอิง; รองรับ callback ไม่สมบูรณ์, session หมดอายุ, สิทธิ์ไม่ผ่าน, ตรวจผลยืนยันตัวตนไม่ผ่าน, หน้า 404 และข้อผิดพลาดระหว่างแสดงผล โดยใช้ Next.js / React / CSS เดิม ไม่เพิ่ม dependency</td></tr>
+    <tr><td>Okta API</td><td>Server-side routes สำหรับ configured factors, test user, enrolled factors, enroll, activate และ verify (TOTP/Push); API token ไม่ส่งไป client</td></tr>
+    <tr><td>Mobile OIDC</td><td>Expo React Native, Code + PKCE, token validation API, Account, SecureStore, Biometrics/device unlock และ Logout; Metro export/TypeScript/Android debug APK ผ่านแล้ว ยังไม่รันบนอุปกรณ์จริง</td></tr>
+    <tr><td>Docker / Database</td><td>Docker Compose รัน Web แบบ dev local พร้อม hot reload และ PostgreSQL 16 container, persistent volume, healthcheck และ dependency ordering; มี Dockerfile สำหรับ production แยกไว้</td></tr>
+    <tr><td>เอกสาร/ทดสอบ</td><td>README.md, docs/TEST_PLAN.md และ scripts/verify-config.mjs</td></tr>
+  </tbody></table>
+  <p><strong>คำสั่งรัน Web:</strong> <code>docker compose up -d</code> แล้วเปิด <code>http://localhost:3000</code> แก้ source แล้ว hot reload ได้ ไม่ต้อง build image ใหม่</p>
+  <p><strong>ผลตรวจ error handling:</strong> ตรวจ HTTP บน local dev ผ่านทั้ง OIDC callback ที่ไม่สมบูรณ์, state หมดอายุ, provider error, SAML response ที่ไม่ถูกต้อง, การป้องกัน dashboard เมื่อไม่มี session, หน้า 404 และ redirect logout; การ login/logout ครบ flow กับบัญชีจริงต้องทดสอบในเบราว์เซอร์ที่มี Okta session</p>
+
+  <h2>อัปเดตงานค้าง WikiKai #1482 — 20 ต.ค. 2026</h2>
+  <ul><li><strong>MFA Lab:</strong> เปิด <code>/api-test</code> หลัง Login ด้วยบัญชีทดสอบ รองรับ enrollment QR, activation TOTP, Push Number Matching/polling, TOTP และ Primary Push/TOTP; จำกัดเฉพาะเจ้าของบัญชี</li><li><strong>หลักฐาน:</strong> <code>/evidence</code> และ <code>/api/evidence</code> เก็บโปรไฟล์และ SHA-256 จาก callback ที่ตรวจผ่าน ไม่เผย token/assertion เต็ม</li><li><strong>Mobile:</strong> แก้ hook/redirect, เพิ่ม ID-token verification, Account, SecureStore restore, background lock, Biometrics/device PIN fallback และ Logout; Mobile Access Policy และ FastPass UV policy ตั้งแยกจาก Web/SAML แล้ว</li><li><strong>Hosted Okta:</strong> Logo/Background/สี EGAT-POC แสดงบนหน้า Okta จริงแล้ว; Hyperlink ติด 403 ของ default brand และยังต้องรับ Logo กฟผ. ทางการ</li><li><strong>ผลตรวจ:</strong> TypeScript Web/Mobile, HTTP 21 checks, Account pointer/keyboard/mobile 390px และ Metro export ผ่าน; MFA UI เป็น mock ไม่ส่ง Push จริง ภาพอยู่ <code>docs/evidence/browser-local</code></li><li><strong>ยังต้องทำโดยเจ้าของบัญชี:</strong> Activation/MFA ของ tharayuth, Login/Logout จริงทั้งสอง protocol/บัญชี, อุปกรณ์ ≥2 เครื่อง, Android/iOS callback และ license acceptance</li><li><strong>TOR 5.2:</strong> Local PIN/Bio unlock หรือ FastPass UV ทางเลือกยังไม่ใช่หลักฐาน PIN/Bio → Push + Number Matching ครบตาม TOR ต้องยืนยันวิธีและการยอมรับ equivalent</li></ul>
+  <p>รายละเอียดผลจริง/ข้อจำกัด: <a href="docs/POC_ACCEPTANCE.md">POC Acceptance</a> และ <a href="docs/MOBILE_DEMO.md">Mobile Demo</a>. Web/DB bind เฉพาะ loopback สำหรับ dev; dependencies เดิมมี security advisories ต้องอัปเกรดก่อน production ไม่ถือว่าผ่าน TOR จาก config/fixture อย่างเดียว</p>
+  <h2>หน้าเดโมเฉพาะ Push / TOTP ไป Primary — TOR 3.5 / 3.6</h2>
+  <p>Login แล้วเปิด <a href="http://localhost:3000/api-test/primary">Primary MFA Demo</a>: เลือก Primary และยืนยันการจับคู่ TOTP ครั้งเดียว จากนั้นกดส่ง Push พร้อม Number Matching/polling หรือกรอกรหัส TOTP 6 หลักเพื่อตรวจผ่าน REST API มีปุ่มดู Source code จริง แสดง request/response ที่ปกปิดรหัส และดาวน์โหลดผล JSON ไม่เพิ่ม dependency และไม่ต้อง build image ใหม่</p>
+  <p>Server อ่าน destination จาก PostgreSQL ไม่รับ factorId/userId มา override. TOTP คือการตรวจรหัสที่มือถือสร้าง ไม่ใช่ส่ง OTP ไปมือถือ Primary เป็น preference ของ POC ไม่ใช่ค่า default ของ Hosted Sign-In ผล mock ไม่ใช่หลักฐานว่า MFA/TOR ผ่านจริง ดู <a href="docs/PRIMARY_MFA_DEMO.md">คู่มือสาธิตสองข้อ</a></p>
+  <h2>แหล่งอ้างอิง</h2>
+  <ul>
+    <li><a href="https://www.onelogin.com/getting-started/free-trial-plan/add-users">OneLogin: Import Users from Active Directory</a></li>
+    <li><a href="https://developers.onelogin.com/docs/openid-connect/dev-overview/">OneLogin Developers: OIDC Overview</a></li>
+    <li><a href="https://developers.onelogin.com/docs/quickstart/saml/">OneLogin Developers: SAML</a></li>
+    <li><a href="https://developers.onelogin.com/docs/quickstart/mfa/">OneLogin Developers: Enroll, Push &amp; Verify MFA</a></li>
+    <li><a href="https://www.onelogin.com/product/smartfactor-authentication">OneLogin: SmartFactor Authentication</a></li>
+  </ul>
+  <footer>หมายเหตุ: ผลประเมินเป็นการเทียบข้อกำหนดจาก PDF กับเอกสารผลิตภัณฑ์ OneLogin ที่เผยแพร่ ณ วันที่ 19 ตุลาคม 2026; การรับรองผลสุดท้ายต้องอ้างอิง tenant, license และการทดสอบจริงของ กฟผ.</footer>
+</article></main></body></html>

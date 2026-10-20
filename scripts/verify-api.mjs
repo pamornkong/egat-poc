@@ -1,0 +1,52 @@
+import assert from "node:assert/strict";
+import { createHmac } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+const env = Object.fromEntries((await readFile(resolve(import.meta.dirname, "../.env.local"), "utf8")).split(/\r?\n/).flatMap(line => { const m = line.match(/^([A-Z0-9_]+)=(.*)$/); return m ? [[m[1], m[2]]] : []; }));
+const base = "http://localhost:3000";
+const now = Math.floor(Date.now() / 1000);
+function cookie(account, sub) {
+  const encode = value => Buffer.from(JSON.stringify(value)).toString("base64url");
+  const value = encode({ alg: "HS256" }) + "." + encode({ sub, email: account, preferred_username: account, iat: now, exp: now + 300 });
+  return "egat_poc_session=" + value + "." + createHmac("sha256", env.SESSION_SECRET).update(value).digest("base64url");
+}
+const target = cookie("pamornko@gmail.com", env.OKTA_TEST_USER_ID);
+const other = cookie("fixture@example.invalid", "fixture-other-user");
+const results = [];
+async function check(name, path, expectedStatus, init = {}, extraCheck) {
+  const response = await fetch(base + path, { ...init, redirect: "manual" });
+  const body = await response.text();
+  assert.equal(response.status, expectedStatus, name + ": " + body.slice(0, 150));
+  assert.equal(body.includes(env.OKTA_API_TOKEN), false, name + ": no API token leak");
+  assert.equal(body.includes(env.OKTA_CLIENT_SECRET), false, name + ": no client secret leak");
+  extraCheck?.(body, response); results.push(name);
+  return body;
+}
+await check("Health", "/api/health", 200);
+for (const path of ["/api/okta/factors", "/api/okta/test-user", "/api/okta/test-user/factors", "/api/evidence"]) await check("Unauthenticated rejection " + path, path, 401);
+await check("Dashboard guarded", "/success", 307);
+await check("MFA console guarded", "/api-test", 307);
+await check("Primary demo guarded", "/api-test/primary", 307);
+await check("Primary source guarded", "/api-test/primary/source", 307);
+await check("Primary verify requires authentication", "/api/okta/test-user/primary/verify", 401, { method: "POST", headers: { "Content-Type": "application/json" }, body: '{"method":"push"}' });
+await check("Evidence page guarded", "/evidence", 307);
+await check("Other account cannot manage test-user MFA", "/api/okta/test-user/factors", 403, { headers: { Cookie: other } });
+await check("Missing Origin blocks mutation", "/api/okta/test-user/factors", 403, { method: "POST", headers: { Cookie: target, "Content-Type": "application/json" }, body: "{}" });
+await check("Cross-origin blocks mutation", "/api/okta/test-user/factors", 403, { method: "POST", headers: { Cookie: target, Origin: "https://example.invalid", "Content-Type": "application/json" }, body: "{}" });
+const safePost = { method: "POST", headers: { Cookie: target, Origin: base, "Content-Type": "application/json" } };
+await check("Primary verify blocks cross-origin before upstream write", "/api/okta/test-user/primary/verify", 403, { ...safePost, headers: { ...safePost.headers, Origin: "https://example.invalid" }, body: '{"method":"push"}' });
+await check("Primary verify rejects unsupported method", "/api/okta/test-user/primary/verify", 400, { ...safePost, body: '{"method":"sms"}' });
+await check("Primary verify rejects caller-selected destination", "/api/okta/test-user/primary/verify", 400, { ...safePost, body: '{"method":"push","factorId":"fixturePushDevice1"}' });
+await check("Primary verify rejects invalid TOTP without a verification request", "/api/okta/test-user/primary/verify", 400, { ...safePost, body: '{"method":"totp","passCode":"bad"}' });
+await check("Primary source allowlist ignores caller file paths", "/api-test/primary/source?file=../../.env.local", 200, { headers: { Cookie: other } }, body => { assert.ok(body.includes("poc_mfa_preferences")); });
+await check("Malformed JSON rejected without enrollment", "/api/okta/test-user/factors", 400, { ...safePost, body: "not json" });
+await check("Unsupported enrollment rejected without Okta write", "/api/okta/test-user/factors", 400, { ...safePost, body: JSON.stringify({ provider: "OKTA", factorType: "sms" }) });
+await check("Malformed factor ID rejected", "/api/okta/test-user/factors/x/verify", 400, { ...safePost, body: "{}" });
+await check("Configured factor catalog via local signed fixture", "/api/okta/factors", 200, { headers: { Cookie: target } }, body => assert.ok(Array.isArray(JSON.parse(body))));
+await check("Test-user profile via local signed fixture", "/api/okta/test-user", 200, { headers: { Cookie: target } }, body => assert.equal(JSON.parse(body).id, env.OKTA_TEST_USER_ID));
+await check("Enrolled factors + PostgreSQL preferences read", "/api/okta/test-user/factors", 200, { headers: { Cookie: target } }, body => assert.ok(Array.isArray(JSON.parse(body).factors)));
+await check("Evidence export scoped to fixture account, no fabricated records", "/api/evidence", 200, { headers: { Cookie: other } }, body => assert.equal(JSON.parse(body).records.length, 0));
+await check("Mobile invalid ID token rejected", "/api/mobile/verify", 401, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idToken: "invalid.token.fixture", nonce: "fixture-nonce-1234567890" }) });
+await check("OIDC invalid callback redirects", "/api/oidc/callback", 303);
+await check("SAML invalid callback redirects", "/api/saml/callback", 303);
+console.log(JSON.stringify({ kind: "HTTP_SMOKE_LOCAL_SIGNED_FIXTURES_NOT_REAL_LOGIN", ok: results.length, results, noRealMfaEnrollmentOrVerificationSent: true }, null, 2));

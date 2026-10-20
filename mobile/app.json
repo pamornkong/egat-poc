@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "EGAT-POC",
+    "slug": "egat-sso-poc",
+    "scheme": "com.egat.poc",
+    "version": "1.0.0",
+    "splash": { "backgroundColor": "#eff8f1", "resizeMode": "contain" },
+    "plugins": ["expo-secure-store", ["expo-local-authentication", { "faceIDPermission": "EGAT-POC ใช้ Face ID เพื่อปลดล็อกข้อมูลบัญชีบนอุปกรณ์นี้" }]],
+    "ios": { "bundleIdentifier": "th.egat.sso.poc", "infoPlist": { "NSAppTransportSecurity": { "NSAllowsLocalNetworking": true } } },
+    "android": { "package": "th.egat.sso.poc", "allowBackup": false }
+  }
+}
