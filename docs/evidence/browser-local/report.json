@@ -17,7 +17,8 @@
     "Primary demo: mocked push rejection never displays success",
     "Primary demo: stop polling does not become SUCCESS or pretend to cancel Okta",
     "Primary demo: 390px viewport no horizontal overflow",
-    "Primary demo: real allowlisted source renders and stays within mobile viewport"
+    "Primary demo: real allowlisted source renders and stays within mobile viewport",
+    "Real hosted Okta sign-in renders configured logo/background (no credentials entered, not a login test)"
   ],
-  "capturedAt": "2026-10-20T05:03:08.550Z"
+  "capturedAt": "2026-10-20T12:34:47.313Z"
 }
