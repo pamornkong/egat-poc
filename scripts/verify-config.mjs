@@ -17,7 +17,7 @@ const required = [
   "SAML_IDP_METADATA_URL",
   "OKTA_API_TOKEN",
   "SESSION_SECRET",
-  "OKTA_TEST_USER_ID",
+  "OKTA_MFA_CONSOLE_USER_IDS",
   "DATABASE_URL"
 ];
 const missing = required.filter((key) => !process.env[key]);

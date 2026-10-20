@@ -1,6 +1,6 @@
 # เดโม TOR 3.5 / 3.6 — Push และ TOTP ของ Primary
 
-เปิด http://localhost:3000/api-test/primary หลัง Login ด้วยบัญชีที่กำหนดใน `OKTA_TEST_USER_ID` (ปัจจุบัน pamornko) มีลิงก์จากหน้าแรก, dashboard และ MFA Lab ไม่ต้องใช้ Postman หรือคัดลอก API Token
+เปิด http://localhost:3000/api-test/primary หลัง Login ด้วยบัญชีที่อยู่ใน `OKTA_MFA_CONSOLE_USER_IDS` (ปัจจุบัน pamornko และ tharayuth; แต่ละคนเห็นและใช้ Primary ของตัวเอง) มีลิงก์จากหน้าแรก, dashboard และ MFA Lab ไม่ต้องใช้ Postman หรือคัดลอก API Token
 
 ## เตรียมครั้งเดียว
 

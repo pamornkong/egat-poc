@@ -10,7 +10,9 @@ function cookie(account, sub) {
   const value = encode({ alg: "HS256" }) + "." + encode({ sub, email: account, preferred_username: account, iat: now, exp: now + 300 });
   return "egat_poc_session=" + value + "." + createHmac("sha256", env.SESSION_SECRET).update(value).digest("base64url");
 }
-const target = cookie("pamornko@gmail.com", env.OKTA_TEST_USER_ID);
+const consoleUsers = (env.OKTA_MFA_CONSOLE_USER_IDS ?? "").split(",").map(id => id.trim()).filter(Boolean);
+assert.ok(consoleUsers.length, "OKTA_MFA_CONSOLE_USER_IDS must list at least one Okta user ID");
+const target = cookie("pamornko@gmail.com", consoleUsers[0]);
 const other = cookie("fixture@example.invalid", "fixture-other-user");
 const results = [];
 async function check(name, path, expectedStatus, init = {}, extraCheck) {
@@ -43,8 +45,9 @@ await check("Malformed JSON rejected without enrollment", "/api/okta/test-user/f
 await check("Unsupported enrollment rejected without Okta write", "/api/okta/test-user/factors", 400, { ...safePost, body: JSON.stringify({ provider: "OKTA", factorType: "sms" }) });
 await check("Malformed factor ID rejected", "/api/okta/test-user/factors/x/verify", 400, { ...safePost, body: "{}" });
 await check("Configured factor catalog via local signed fixture", "/api/okta/factors", 200, { headers: { Cookie: target } }, body => assert.ok(Array.isArray(JSON.parse(body))));
-await check("Test-user profile via local signed fixture", "/api/okta/test-user", 200, { headers: { Cookie: target } }, body => assert.equal(JSON.parse(body).id, env.OKTA_TEST_USER_ID));
+await check("Test-user profile via local signed fixture", "/api/okta/test-user", 200, { headers: { Cookie: target } }, body => assert.equal(JSON.parse(body).id, consoleUsers[0]));
 await check("Enrolled factors + PostgreSQL preferences read", "/api/okta/test-user/factors", 200, { headers: { Cookie: target } }, body => assert.ok(Array.isArray(JSON.parse(body).factors)));
+for (const id of consoleUsers.slice(1)) await check("Allowlisted user sees only own account " + id, "/api/okta/test-user", 200, { headers: { Cookie: cookie("console-user@example.invalid", id) } }, body => assert.equal(JSON.parse(body).id, id));
 await check("Evidence export scoped to fixture account, no fabricated records", "/api/evidence", 200, { headers: { Cookie: other } }, body => assert.equal(JSON.parse(body).records.length, 0));
 await check("Mobile invalid ID token rejected", "/api/mobile/verify", 401, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ idToken: "invalid.token.fixture", nonce: "fixture-nonce-1234567890" }) });
 await check("OIDC invalid callback redirects", "/api/oidc/callback", 303);

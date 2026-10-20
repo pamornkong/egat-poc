@@ -5,7 +5,7 @@
 ## สิ่งที่ทำเพิ่ม
 
 - `/api-test` เป็น MFA Lab: โหลด test user/factor catalog/enrolled factors, enrollment QR, TOTP activation, Push Number Matching + transaction polling, TOTP verification
-- ตั้ง `OKTA_TEST_USER_ID` เป็นบัญชี pamornko ที่ ACTIVE; API token ใช้เฉพาะ server จำกัดให้ session ของเจ้าของบัญชีนี้เท่านั้น; mutation ตรวจ Origin/JSON และ allowlist factor types; ไม่รับ URL ให้ส่ง SSWS ตาม arbitrary link
+- ตั้ง `OKTA_MFA_CONSOLE_USER_IDS` เป็น pamornko และ tharayuth; API token ใช้เฉพาะ server, หา Okta user จาก session และอนุญาตเฉพาะ user ใน allowlist ให้จัดการ MFA ของตัวเองเท่านั้น; mutation ตรวจ Origin/JSON และ allowlist factor types; ไม่รับ URL ให้ส่ง SSWS ตาม arbitrary link
 - Primary Push และการจับคู่ TOTP ของอุปกรณ์ Primary เก็บใน PostgreSQL เจ้าของต้องยืนยันว่า TOTP มาจากเครื่องเดียวกัน ไม่เดาการจับคู่จากชื่อบัญชี และไม่อ้างว่าเปลี่ยน Primary ของ Hosted Sign-In
 - PostgreSQL ผ่าน `pg` ไม่มี ORM; ตาราง `poc_mfa_preferences` และ `poc_auth_evidence`; queries ที่รับค่าผู้ใช้ใช้ parameters
 - `/evidence` และ `/api/evidence` แสดง/export เฉพาะบัญชีปัจจุบัน บันทึกหลัง callback ตรวจผ่าน เก็บ normalized profile, เวลา, protocol, validation description, SHA-256 ไม่เก็บ token/assertion เต็ม; unique digest ป้องกัน replay ของ response เดิม

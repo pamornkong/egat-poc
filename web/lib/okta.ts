@@ -9,11 +9,14 @@ function oktaBaseUrl(): string {
   return config.issuer.split("/oauth2/")[0];
 }
 
-export function requireTestUserId(): string {
-  if (!config.oktaTestUserId) {
-    throw new ApiError(503, "ยังไม่ได้กำหนด OKTA_TEST_USER_ID สำหรับ MFA console");
+const notAllowed = "บัญชีนี้ไม่ได้รับสิทธิ์ใช้ MFA console และไม่สามารถจัดการ MFA ของผู้อื่น";
+
+export function consoleUserIds(): Set<string> {
+  const ids = (config.mfaConsoleUserIds ?? "").split(",").map(id => id.trim()).filter(Boolean);
+  if (!ids.length) {
+    throw new ApiError(503, "ยังไม่ได้กำหนด OKTA_MFA_CONSOLE_USER_IDS สำหรับ MFA console");
   }
-  return config.oktaTestUserId;
+  return new Set(ids);
 }
 
 export async function isAuthenticated(): Promise<boolean> {
@@ -64,6 +67,33 @@ export async function oktaJson(path: string, init: RequestInit = {}) {
   return data;
 }
 
+async function lookupUser(path: string) {
+  try {
+    return await oktaJson(path);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) throw new ApiError(403, notAllowed);
+    throw error;
+  }
+}
+
+// Resolve the Okta user from the signed-in session, never from caller input,
+// so each allowlisted user can only reach their own factors.
+async function sessionOktaUser(session: Record<string, unknown>, allowed: Set<string>) {
+  if (session.protocol === "saml") {
+    const login = getAccountProfile(session).account;
+    if (!login) throw new ApiError(403, notAllowed);
+    const user = await lookupUser(`/api/v1/users/${encodeURIComponent(login)}`);
+    if (String(user.profile?.login).toLowerCase() !== login.toLowerCase()) throw new ApiError(403, notAllowed);
+    if (!allowed.has(user.id)) throw new ApiError(403, notAllowed);
+    return user;
+  }
+  const sub = typeof session.sub === "string" ? session.sub : "";
+  if (!allowed.has(sub)) throw new ApiError(403, notAllowed);
+  const user = await lookupUser(`/api/v1/users/${encodeURIComponent(sub)}`);
+  if (user.id !== sub) throw new ApiError(403, notAllowed);
+  return user;
+}
+
 export async function authorizedTestUser(request?: Request) {
   const session = await getSession();
   if (!session) throw new ApiError(401, "กรุณาเข้าสู่ระบบก่อนใช้ MFA console");
@@ -71,14 +101,8 @@ export async function authorizedTestUser(request?: Request) {
     if (request.headers.get("origin") !== new URL(config.webBaseUrl).origin) throw new ApiError(403, "คำขอไม่ได้มาจากเว็บไซต์นี้");
     if (!request.headers.get("content-type")?.startsWith("application/json")) throw new ApiError(415, "ต้องส่ง application/json");
   }
-  const userId = requireTestUserId();
-  const user = await oktaJson(`/api/v1/users/${encodeURIComponent(userId)}`);
-  const profile = getAccountProfile(session);
-  const isOwner = session.protocol === "saml"
-    ? profile.account?.toLowerCase() === String(user.profile?.login).toLowerCase()
-    : session.sub === user.id;
-  if (!isOwner) throw new ApiError(403, "MFA console อนุญาตเฉพาะเจ้าของบัญชีทดสอบที่กำหนดไว้ ไม่สามารถจัดการ MFA ของผู้อื่น");
-  return { id: userId, user };
+  const user = await sessionOktaUser(session, consoleUserIds());
+  return { id: String(user.id), user };
 }
 
 export function factorId(value: string) {
