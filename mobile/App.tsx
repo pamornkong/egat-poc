@@ -13,6 +13,20 @@ const apiBase = (process.env.EXPO_PUBLIC_API_BASE_URL ?? (Platform.OS === "andro
 const redirectUri = "com.egat.poc:/callback"; // Must match the registered Okta native URI exactly.
 const logoutUri = "com.egat.poc:/logout";
 const storageKey = "egat.poc.session.v1";
+// TOR mapping (หมวด 5 Mobile; claims อ้าง 3.1) — แสดงใน UI การ์ด "TOR ที่ครอบคลุม"
+const torItems = [
+  { tor: "5.1", title: "React Native + OIDC", detail: "Login กับ Okta ผ่าน system browser; ตรวจ ID token ที่ /api/mobile/verify" },
+  { tor: "5.2", title: "Factor 1: PIN/Biometrics", detail: "ปลดล็อกข้อมูลในเครื่องด้วย Biometrics หรือ PIN ของอุปกรณ์ (expo-local-authentication)" },
+  { tor: "5.2", title: "Factor 2: Push + Number Matching", detail: "ทำที่ Okta Hosted Sign-In (Okta Verify) ตาม policy ของ Mobile app; ไม่ใช่ local unlock" },
+  { tor: "5.3", title: "Authorization Code + PKCE", detail: "response_type=code, code_challenge_method=S256, ไม่มี Client Secret ในแอป" },
+  { tor: "3.1", title: "Custom claims", detail: "แสดง account / email / employee_code / department จาก ID token ที่ตรวจแล้ว" }
+] as const;
+const validationChecks = ["signature (JWKS)", "issuer", "audience (Mobile)", "expiry", "nonce"];
+function formatTime(seconds: number) { return new Date(seconds * 1000).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }); }
+function remaining(seconds: number, now: number) {
+  const left = Math.max(0, Math.floor(seconds - now / 1000));
+  return Math.floor(left / 60) + " นาที " + (left % 60) + " วินาที";
+}
 type Profile = { sub?: string; account?: string; name?: string; email?: string; employee_code?: string; department?: string };
 type Session = { idToken: string; accessToken: string; nonce: string; expiresAt: number; profile: Profile };
 
@@ -26,6 +40,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [locked, setLocked] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [now, setNow] = useState(Date.now());
   const [status, setStatus] = useState("กำลังตรวจ session บนอุปกรณ์…");
   const handled = useRef<string>();
   const browserBusy = useRef(false);
@@ -57,6 +72,11 @@ export default function App() {
     });
     return () => { mounted = false; subscription.remove(); };
   }, []);
+  useEffect(() => {
+    if (!session) return;
+    const ticker = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(ticker);
+  }, [session?.expiresAt]);
   useEffect(() => {
     if (!session) return;
     const timer = setTimeout(() => { void forget().then(() => setStatus("session หมดอายุ กรุณา Login ใหม่")); }, Math.max(0, session.expiresAt * 1000 - Date.now()));
@@ -113,11 +133,30 @@ export default function App() {
     <Text style={styles.eyebrow}>SECURE MOBILE WORKSPACE</Text><Text style={styles.title}>EGAT-POC</Text>
     <Text style={styles.copy}>OIDC + PKCE · Okta Verify · Device unlock</Text>
     <View style={styles.card}><Text style={styles.cardTitle}>สถานะ</Text><Text style={styles.copy} accessibilityLiveRegion="polite">{status}</Text></View>
-    {!session && <Button title="เข้าสู่ระบบด้วย Okta" color="#187344" disabled={!request || busy} onPress={() => { browserBusy.current = true; void promptAsync().finally(() => { browserBusy.current = false; }); }} />}
-    {session && locked && <View style={styles.card}><Text style={styles.cardTitle}>ข้อมูลบัญชีถูกล็อก</Text><Button title="ปลดล็อกด้วย Biometrics" color="#187344" disabled={busy} onPress={() => void unlock(true)} /><Button title="ยืนยันด้วยอุปกรณ์ / PIN fallback" color="#0d482f" disabled={busy} onPress={() => void unlock(false)} /></View>}
+    {!session && <Button title="เข้าสู่ระบบด้วย Okta (TOR 5.1/5.3)" color="#187344" disabled={!request || busy} onPress={() => { browserBusy.current = true; void promptAsync().finally(() => { browserBusy.current = false; }); }} />}
+    {session && locked && <View style={styles.card}><Text style={styles.cardTitle}>ข้อมูลบัญชีถูกล็อก (TOR 5.2 Factor 1)</Text><Button title="ปลดล็อกด้วย Biometrics" color="#187344" disabled={busy} onPress={() => void unlock(true)} /><Button title="ยืนยันด้วยอุปกรณ์ / PIN fallback" color="#0d482f" disabled={busy} onPress={() => void unlock(false)} /></View>}
     {session && !locked && <View style={styles.card}><Text style={styles.cardTitle}>{session.profile.name ?? session.profile.account}</Text>{(["account", "email", "employee_code", "department"] as const).map(key => <View key={key}><Text style={styles.label}>{key}</Text><Text selectable style={styles.value}>{session.profile[key] ?? "ยังไม่ได้รับข้อมูล"}</Text></View>)}<Button title="ล็อกหน้าจอแอป" color="#187344" onPress={() => setLocked(true)} /></View>}
     {session && <Button title="ออกจากระบบ + Okta" color="#963c2e" disabled={busy} onPress={() => void logout()} />}
-    <View style={styles.card}><Text style={styles.cardTitle}>ขอบเขตการทดสอบ</Text><Text style={styles.copy}>PIN/Biometrics ด้านบนใช้ปลดล็อกข้อมูลในเครื่อง ไม่ใช่ Okta Passwordless Login; การพิสูจน์ FastPass ต้องมี policy และอุปกรณ์ที่ลงทะเบียนจริง ส่วน Push ทำผ่าน Okta Hosted Sign-In ตาม policy</Text><Text style={styles.label}>Native callback</Text><Text selectable style={styles.value}>{redirectUri}</Text><Text style={styles.label}>Validation API (dev local)</Text><Text selectable style={styles.value}>{apiBase}</Text></View>
+    <View style={styles.card}><Text style={styles.cardTitle}>ขั้นตอนการยืนยันตัวตน</Text>
+      {([
+        ["1", "เข้าสู่ระบบด้วย Okta (Authorization Code + PKCE S256 + nonce)", "TOR 5.1 / 5.3", !!session],
+        ["2", "Okta Hosted Sign-In: Password + Okta Verify Push / Number Matching (Factor 2)", "TOR 5.2", !!session],
+        ["3", "ตรวจ ID token ที่ API: " + validationChecks.join(", "), "TOR 5.1 / 3.1", !!session],
+        ["4", "เก็บ session ใน SecureStore และล็อกเมื่อแอปเข้า background", "TOR 5.2", !!session],
+        ["5", "ปลดล็อกด้วย Biometrics / PIN อุปกรณ์ (Factor 1 ระดับเครื่อง)", "TOR 5.2", !!session && !locked]
+      ] as const).map(([n, text, tor, done]) => <View key={n} style={styles.step}><Text style={[styles.badge, done && styles.badgeDone]}>{done ? "✓" : n}</Text><View style={{ flex: 1 }}><Text style={styles.value}>{text}</Text><Text style={styles.tor}>{tor}</Text></View></View>)}
+    </View>
+    {session && !locked && <View style={styles.card}><Text style={styles.cardTitle}>รายละเอียด Token</Text>
+      <Text style={styles.label}>Subject (sub) · TOR 3.1</Text><Text selectable style={styles.value}>{session.profile.sub}</Text>
+      <Text style={styles.label}>หมดอายุ (Asia/Bangkok) · TOR 5.1</Text><Text style={styles.value}>{formatTime(session.expiresAt)}</Text>
+      <Text style={styles.label}>เหลือเวลา · TOR 5.1</Text><Text style={styles.value}>{remaining(session.expiresAt, now)}</Text>
+      <Text style={styles.label}>ตรวจแล้วโดย API · TOR 5.1</Text><Text style={styles.value}>{validationChecks.join(" · ")}</Text>
+      <Text style={styles.label}>Access token / ID token</Text><Text style={styles.value}>เก็บใน SecureStore ไม่แสดงค่าเต็ม</Text>
+    </View>}
+    <View style={styles.card}><Text style={styles.cardTitle}>TOR ที่ครอบคลุม</Text>
+      {torItems.map(item => <View key={item.tor + item.title}><Text style={styles.tor}>TOR {item.tor} · {item.title}</Text><Text style={styles.copy}>{item.detail}</Text></View>)}
+    </View>
+    <View style={styles.card}><Text style={styles.cardTitle}>ขอบเขตการทดสอบ (TOR 5.2)</Text><Text style={styles.copy}>PIN/Biometrics ด้านบนใช้ปลดล็อกข้อมูลในเครื่อง ไม่ใช่ Okta Passwordless Login; การพิสูจน์ FastPass ต้องมี policy และอุปกรณ์ที่ลงทะเบียนจริง ส่วน Push ทำผ่าน Okta Hosted Sign-In ตาม policy</Text><Text style={styles.label}>Native callback</Text><Text selectable style={styles.value}>{redirectUri}</Text><Text style={styles.label}>Validation API (dev local)</Text><Text selectable style={styles.value}>{apiBase}</Text></View>
     <Text style={styles.note}>ต้องใช้ development build สำหรับ scheme และ Face ID จริง ไม่ใช้ Expo Go เป็นหลักฐานผ่าน Android/iOS ใช้ HTTPS ก่อนใช้งานนอกเครือข่าย local ที่ไว้ใจได้</Text>
   </ScrollView></SafeAreaView>;
 }
@@ -127,5 +166,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 40, fontWeight: "800", color: "#0d482f" }, copy: { color: "#527261", lineHeight: 24, fontSize: 15 },
   card: { backgroundColor: "#fff", borderRadius: 20, padding: 22, gap: 14, borderColor: "#cfe6d5", borderWidth: 1 },
   cardTitle: { color: "#0d482f", fontSize: 20, fontWeight: "700" }, label: { color: "#5d7468", fontSize: 11 },
+  tor: { color: "#187344", fontSize: 12, fontWeight: "700", marginTop: 2 },
+  step: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+  badge: { width: 26, height: 26, borderRadius: 13, textAlign: "center", lineHeight: 26, backgroundColor: "#e3eee7", color: "#527261", fontWeight: "700", overflow: "hidden" },
+  badgeDone: { backgroundColor: "#187344", color: "#fff" },
   value: { color: "#17352a", fontSize: 15, marginTop: 4 }, note: { color: "#5d7468", lineHeight: 22, fontSize: 12 }
 });
