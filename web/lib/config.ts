@@ -17,6 +17,6 @@ export const config = {
   get webBaseUrl() { return process.env.WEB_BASE_URL ?? "http://localhost:3000"; },
   get samlEntityId() { return process.env.SAML_ENTITY_ID ?? "http://localhost:3000/saml"; },
   get samlAcsUrl() { return process.env.SAML_ACS_URL ?? "http://localhost:3000/api/saml/callback"; },
-  get oktaTestUserId() { return process.env.OKTA_TEST_USER_ID ?? ""; },
+  get mfaConsoleUserIds() { return process.env.OKTA_MFA_CONSOLE_USER_IDS ?? ""; },
   get databaseUrl() { return required("DATABASE_URL"); }
 };

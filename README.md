@@ -79,7 +79,7 @@ Mobile ใช้ native development build ไม่ใช่ Expo Go; ต้อ�
 
 สำหรับสาธิตเฉพาะ TOR 3.5 / 3.6 เปิด **http://localhost:3000/api-test/primary**: บันทึก Primary/จับคู่ TOTP ครั้งเดียว แล้วกดส่ง Push หรือกรอกรหัส TOTP แยกสองการ์ด มี Number Matching/polling, request/response ที่ปกปิดรหัส, เปิด Source จริง และดาวน์โหลดผล JSON ดู [คู่มือเดโมสองข้อ](docs/PRIMARY_MFA_DEMO.md). TOTP เป็นการตรวจรหัสที่มือถือสร้าง ไม่ใช่ส่ง OTP ไปมือถือ.
 
-กำหนด `OKTA_TEST_USER_ID` เป็นบัญชี pamornko ที่ ACTIVE แล้ว Login ด้วยบัญชีนี้และเปิด http://localhost:3000/api-test เพื่อใช้ MFA Lab: enrollment QR, activation TOTP, Push Number Matching/polling, TOTP และ Primary Push/TOTP preference API จำกัดเฉพาะเจ้าของบัญชีที่กำหนด ไม่ให้ผู้ใช้ทั่วไปจัดการ MFA ของคนอื่น API token ถูกใช้เฉพาะ server-side route และไม่ส่งไป mobile/browser
+กำหนด `OKTA_MFA_CONSOLE_USER_IDS` เป็น Okta user ID ที่อนุญาต (คั่นด้วย comma; ปัจจุบัน pamornko และ tharayuth) แล้ว Login ด้วยบัญชีของตนและเปิด http://localhost:3000/api-test เพื่อใช้ MFA Lab: enrollment QR, activation TOTP, Push Number Matching/polling, TOTP และ Primary Push/TOTP preference API หา Okta user จาก session (OIDC `sub` / SAML NameID) ไม่รับ userId จาก caller ผู้ใช้ใน allowlist แต่ละคนจึงจัดการได้เฉพาะ MFA ของตัวเอง API token ถูกใช้เฉพาะ server-side route และไม่ส่งไป mobile/browser
 
 MFA API routes:
 

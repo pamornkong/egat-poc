@@ -66,7 +66,7 @@ export default function MfaConsole() {
     setBusy(true); delay.current = setTimeout(poll, 2500);
   }
   return <>
-    <section className="mfa-toolbar card"><div><span className="eyebrow">Test account · owner only</span><h2>{user?.login ?? "MFA Console"}</h2><p>{user?.status ?? "เข้าสู่ระบบด้วยบัญชีที่กำหนดใน OKTA_TEST_USER_ID"}</p></div><button className="button secondary" disabled={busy} onClick={() => void perform(refresh)}>รีเฟรชข้อมูล</button></section>
+    <section className="mfa-toolbar card"><div><span className="eyebrow">บัญชีของคุณ · จัดการได้เฉพาะ MFA ของตัวเอง</span><h2>{user?.login ?? "MFA Console"}</h2><p>{user?.status ?? "เข้าสู่ระบบด้วยบัญชีที่ได้รับสิทธิ์ใน OKTA_MFA_CONSOLE_USER_IDS"}</p></div><button className="button secondary" disabled={busy} onClick={() => void perform(refresh)}>รีเฟรชข้อมูล</button></section>
     <div role="status" aria-live="polite" className="mfa-message">{message}</div>
     {error && <div role="alert" className="mfa-error">{error}</div>}
     <section className="mfa-grid">
